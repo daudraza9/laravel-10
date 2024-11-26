@@ -57,4 +57,8 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+    public function updateAvatar(Request $request)
+    {
+        return response()->redirectTo('profile');
+    }
 }
