@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\UpdateAvatarRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -57,8 +59,27 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
-    public function updateAvatar(Request $request)
+    public function updateAvatar(UpdateAvatarRequest $request)
     {
-        return response()->redirectTo('profile');
+        $path = Storage::disk('public')->put('avatars',$request->file('avatar'));
+        // dd($path);
+        // $request->validate([
+        //     'avatar' =>'required|image',
+        // ]); 
+        // dd($request->all());
+        // $request->file('avatar')->store('avatars');
+
+        
+        // $path = $request->file('avatar')->store('avatars','public');
+        if($oldAvatar = $request->user()->avatar){
+            Storage::disk('public')->delete($oldAvatar) ;
+         }
+        // dd($path);
+        auth()->user()->update([
+            'avatar' => $path
+        ]);
+        // dd(auth()->user());
+        // return back()->with(['message'=>'Avatar is changed']);
+        return redirect(route('profile.edit'))->with('message','Avatar is updated');
     }
 }
